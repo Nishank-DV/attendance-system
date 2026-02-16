@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartVision AI Attendance System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- Background Gradient -->
+    <div class="bg-gradient"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">👁️</div>
+                <h1>SmartVision AI Attendance</h1>
+            </div>
+            <div class="status-badge" id="backend-status">
+                <span class="status-dot"></span>
+                <span>Checking Backend...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container main-content">
+        <!-- Webcam Section -->
+        <section class="card webcam-section">
+            <div class="card-header">
+                <h2>Live Camera Feed</h2>
+                <button class="btn-secondary" id="toggle-camera">Start Camera</button>
+            </div>
+            <div class="webcam-container">
+                <video id="webcam" autoplay playsinline></video>
+                <canvas id="canvas" style="display: none;"></canvas>
+                <div class="webcam-placeholder" id="webcam-placeholder">
+                    <p>📷 Click "Start Camera" to begin</p>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn-primary" id="capture-btn" disabled>
+                    <span id="capture-text">📸 Capture & Recognize</span>
+                    <div class="spinner" id="capture-spinner" style="display: none;"></div>
+                </button>
+            </div>
+        </section>
+
+        <!-- Recognition Result -->
+        <section class="card result-section" id="result-section" style="display: none;">
+            <div class="result-content" id="result-content">
+                <!-- Dynamic result will be inserted here -->
+            </div>
+        </section>
+
+        <!-- Attendance Table -->
+        <section class="card table-section">
+            <div class="card-header">
+                <h2>Attendance Records</h2>
+                <button class="btn-secondary" id="refresh-btn">🔄 Refresh</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Entry Time</th>
+                            <th>Exit Time</th>
+                            <th>Confidence</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendance-table">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px;">
+                                <div class="spinner"></div>
+                                <p style="margin-top: 16px; color: #666;">Loading attendance records...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Summary Stats -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📥</div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Entries</p>
+                    <h3 class="stat-value" id="stat-entries">0</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📤</div>
+                <div class="stat-content">
+                    <p class="stat-label">Total Exits</p>
+                    <h3 class="stat-value" id="stat-exits">0</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <p class="stat-label">Currently Present</p>
+                    <h3 class="stat-value" id="stat-present">0</h3>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>SmartVision AI Attendance System | Backend: <span id="backend-url">http://127.0.0.1:5000</span></p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
