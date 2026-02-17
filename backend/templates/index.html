@@ -7,29 +7,33 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body>
-    <!-- Background Gradient -->
     <div class="bg-gradient"></div>
 
-    <!-- Header -->
     <header class="header">
         <div class="container">
             <div class="logo">
                 <div class="logo-icon">👁️</div>
                 <h1>SmartVision AI Attendance</h1>
             </div>
-            <div class="status-badge" id="backend-status">
-                <span class="status-dot"></span>
-                <span>Checking Backend...</span>
+            <div class="header-badges">
+                <a class="btn-secondary" href="{{ url_for('dashboard.dashboard_page') }}">Faculty Dashboard</a>
+                <a class="btn-secondary" href="{{ url_for('auth.faculty_logout') }}">Logout</a>
+                {% if is_admin %}
+                <span class="admin-badge">Admin</span>
+                {% endif %}
+                <div class="active-date-badge" id="active-date-badge">📅 Active Date: --</div>
+                <div class="status-badge" id="backend-status">
+                    <span class="status-dot"></span>
+                    <span>Checking Backend...</span>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="container main-content">
-        <!-- Webcam Section -->
         <section class="card webcam-section">
             <div class="card-header">
                 <h2>Live Camera Feed</h2>
@@ -50,19 +54,24 @@
             </div>
         </section>
 
-        <!-- Recognition Result -->
         <section class="card result-section" id="result-section" style="display: none;">
-            <div class="result-content" id="result-content">
-                <!-- Dynamic result will be inserted here -->
-            </div>
+            <div class="result-content" id="result-content"></div>
         </section>
 
-        <!-- Attendance Table -->
         <section class="card table-section">
             <div class="card-header">
                 <h2>Attendance Records</h2>
-                <button class="btn-secondary" id="refresh-btn">🔄 Refresh</button>
+                <div class="table-actions">
+                    <div class="date-controls">
+                        <button class="btn-secondary" id="day1-btn">Day 1</button>
+                        <button class="btn-secondary" id="day2-btn">Day 2</button>
+                        <input type="date" id="attendance-date" class="date-input" />
+                        <button class="btn-secondary" id="set-date-btn">Set Date</button>
+                    </div>
+                    <button class="btn-secondary" id="refresh-btn">🔄 Refresh</button>
+                </div>
             </div>
+            <p class="selected-date-label" id="selected-date-label">Selected Date: --</p>
             <div class="table-container">
                 <table>
                     <thead>
@@ -86,7 +95,6 @@
             </div>
         </section>
 
-        <!-- Summary Stats -->
         <section class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">📥</div>
@@ -112,11 +120,10 @@
         </section>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <p>SmartVision AI Attendance System | Backend: <span id="backend-url">http://127.0.0.1:5000</span></p>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="{{ url_for('static', filename='js/attendance.js') }}"></script>
 </body>
 </html>

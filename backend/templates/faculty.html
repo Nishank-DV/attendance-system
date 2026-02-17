@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Faculty Login | SmartVision</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+    <div class="bg-gradient"></div>
+
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">🎓</div>
+                <h1>SmartVision Faculty Login</h1>
+            </div>
+            <div class="status-badge connected">
+                <span class="status-dot"></span>
+                <span>Backend Connected</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        <section class="card auth-card">
+            <div class="card-header">
+                <h2>Faculty Sign In</h2>
+            </div>
+
+            <form action="{{ url_for('auth.faculty_login') }}" method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input id="username" name="username" type="text" required />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" required />
+                </div>
+
+                {% if error %}
+                <p class="form-error">{{ error }}</p>
+                {% endif %}
+
+                <button class="btn-primary" type="submit">Login</button>
+            </form>
+
+            <div class="auth-links">
+                <a class="btn-secondary" href="{{ url_for('auth.faculty_forgot') }}">Forgot Password</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

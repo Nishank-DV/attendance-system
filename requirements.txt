@@ -9,6 +9,10 @@ dlib==19.24.0
 # Image processing
 Pillow==10.2.0
 numpy==1.26.4
+opencv-python==4.10.0.84
 
 # HTTP requests
-requests==2.31.0 
+requests==2.31.0
+
+# Environment configuration
+python-dotenv==1.0.1

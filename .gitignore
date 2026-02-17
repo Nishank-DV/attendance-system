@@ -9,5 +9,6 @@ venv/
 .idea/
 .vscode/
 *.log
+.env
 attendance_records/*.csv
 !attendance_records/attendance.csv

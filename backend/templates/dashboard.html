@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Faculty Dashboard | SmartVision</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+    <div class="bg-gradient"></div>
+
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">🎓</div>
+                <h1>Faculty Dashboard</h1>
+            </div>
+            <div class="table-actions">
+                {% if is_admin %}
+                <span class="admin-badge">Admin</span>
+                <a class="btn-secondary" href="{{ url_for('auth.faculty_register') }}">Create Faculty</a>
+                {% endif %}
+                <a class="btn-secondary" href="{{ url_for('dashboard.attendance_page') }}">Attendance Page</a>
+                <a class="btn-secondary" href="{{ url_for('auth.faculty_logout') }}">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container main-content">
+        <section class="card">
+            <div class="card-header">
+                <h2>Welcome, {{ username }}</h2>
+            </div>
+            <div class="date-controls">
+                <input id="attendance-date" type="date" class="date-input" />
+                <button class="btn-secondary" id="set-date-btn">Set Date</button>
+                <p class="selected-date-label" id="date-msg">Selected Date: --</p>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <h2>Register Student (Webcam)</h2>
+            </div>
+            <video id="reg-video" autoplay playsinline class="reg-video"></video>
+            <canvas id="reg-canvas" style="display:none;"></canvas>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input id="name" type="text" />
+                </div>
+                <div class="form-group">
+                    <label for="roll-number">Roll Number</label>
+                    <input id="roll-number" type="text" />
+                </div>
+                <div class="form-group">
+                    <label for="department">Department</label>
+                    <input id="department" type="text" />
+                </div>
+            </div>
+
+            <div class="table-actions">
+                <button class="btn-secondary" id="start-reg-camera">Start Camera</button>
+                <button class="btn-primary" id="register-student">Capture & Register</button>
+            </div>
+            <p class="selected-date-label">Tip: start the camera and allow permission before capturing.</p>
+            <p class="selected-date-label" id="reg-msg"></p>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <h2>Registered Students</h2>
+                <button class="btn-secondary" id="refresh-students">Refresh</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Roll</th>
+                            <th>Department</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="students-table"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}?v=2"></script>
+</body>
+</html>
