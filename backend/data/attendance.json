@@ -1,6 +1,37 @@
 {
   "active_date": "2026-02-17",
   "records_by_date": {
-    "2026-02-17": []
+    "2026-02-17": [
+      {
+        "student_id": 1,
+        "name": "Nishank",
+        "roll_number": "27",
+        "department": "it",
+        "entry_time": "2026-02-18T14:07:55.680621+00:00",
+        "exit_time": "2026-02-19T06:16:15.406036+00:00",
+        "confidence": 63.32,
+        "date": "2026-02-17"
+      },
+      {
+        "student_id": 3,
+        "name": "hellp",
+        "roll_number": "22",
+        "department": "cse",
+        "entry_time": "2026-02-19T06:17:03.669301+00:00",
+        "exit_time": "2026-02-19T06:19:32.966664+00:00",
+        "confidence": 74.61,
+        "date": "2026-02-17"
+      },
+      {
+        "student_id": 2,
+        "name": "Nishank",
+        "roll_number": "78",
+        "department": "it",
+        "entry_time": "2026-02-19T06:18:54.773156+00:00",
+        "exit_time": "",
+        "confidence": 67.59,
+        "date": "2026-02-17"
+      }
+    ]
   }
 }

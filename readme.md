@@ -1,21 +1,24 @@
-# SmartVision AI Attendance System
+# SmartVision Attendance System
 
-Production-ready AI attendance system with:
-- Flask backend (modular architecture)
-- Server-rendered frontend using Flask templates/static
-- Face recognition via `face_recognition` + `dlib`
-- Dynamic student registration (webcam capture)
-- JSON-based student and attendance storage
-- ESP32 buzzer integration for event feedback
+SmartVision is a Flask-based AI attendance application that uses face recognition for student entry/exit tracking, faculty authentication, and optional ESP32-CAM + buzzer integration.
 
----
+## What this project does
 
-## ✅ Current Architecture
+- Faculty login/logout with session protection
+- Admin bootstrap user creation from environment variables
+- Student registration from webcam image (`name`, `roll_number`, `department`)
+- Face encoding storage in JSON (`backend/data/students.json`)
+- Attendance marking with entry/exit toggle and cooldown logic
+- Date-wise attendance storage and summary (`backend/data/attendance.json`)
+- ESP32 mode polling + buzzer trigger integration
 
-All UI is now served directly by Flask (no Live Server required).
+## Project structure
 
 ```text
 smartvision-attendance/
+├── .env.example
+├── requirements.txt
+├── readme.md
 ├── backend/
 │   ├── app.py
 │   ├── config.py
@@ -23,161 +26,250 @@ smartvision-attendance/
 │   ├── recognition_service.py
 │   ├── registration.py
 │   ├── student_db.py
+│   ├── faculty_db.py
+│   ├── utils.py
 │   ├── routes/
-│   │   ├── __init__.py
 │   │   ├── auth.py
 │   │   └── dashboard.py
 │   ├── templates/
 │   │   ├── faculty.html
+│   │   ├── faculty_register.html
+│   │   ├── faculty_forgot.html
 │   │   ├── dashboard.html
 │   │   └── index.html
 │   ├── static/
-│   │   ├── css/
-│   │   │   └── style.css
+│   │   ├── css/style.css
 │   │   └── js/
 │   │       ├── dashboard.js
 │   │       └── attendance.js
 │   ├── data/
 │   │   ├── students.json
-│   │   └── attendance.json
-│   ├── utils.py
-│   └── __init__.py
-├── esp32/
-│   └── esp32_cam.ino
-├── requirements.txt
-└── readme.md
+│   │   ├── attendance.json
+│   │   └── faculty_users.json
+│   └── received_images/
+└── esp32/
+      └── esp32_cam.ino
 ```
 
----
+## Prerequisites
 
-## 🔐 Auth + Page Routing
+- Python 3.10+ (recommended)
+- `pip`
+- Webcam (for registration and attendance via browser)
+- Modern browser (Chrome/Edge recommended)
+- Optional: ESP32-CAM module for hardware integration
 
-- `GET /faculty` → Faculty login page
-- `POST /faculty/login` → Faculty login submission
-- `GET /faculty/logout` → Logout and clear session
-- `GET /dashboard` → Faculty dashboard (protected)
-- `GET /attendance` → Attendance page (protected)
+> Note: this project uses `dlib-bin` (prebuilt wheels) to reduce native build issues. If installation still fails on your platform, install C++ build tools and retry.
 
-If not logged in, protected routes redirect to `/faculty`.
+## Full setup (new system / exported project)
 
----
+Run all commands from project root: `smartvision-attendance`.
 
-## 🧠 Recognition & Attendance Flow
+### Windows quick commands (recommended)
 
-1. Faculty registers student from webcam in dashboard.
-2. System extracts face encoding and stores it in `backend/data/students.json`.
-3. Attendance page captures live image and sends it to `/api/recognize`.
-4. Backend compares probe encoding against stored encodings.
-5. If match:
-   - attendance is marked by `student_id`
-   - entry/exit logic is applied
-   - cooldown is enforced
-6. If no match: returns `unknown`/`unregistered` and triggers unknown buzzer pattern.
+Use these exact commands in PowerShell:
 
-Attendance is grouped by date in `backend/data/attendance.json`.
+```powershell
+Set-Location "C:\Users\<YOUR_USER>\...\smartvision-attendance"
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\setup.ps1
+.\run.ps1
+```
 
----
+Open: `http://127.0.0.1:5000/faculty`
 
-## 📡 API Endpoints
+### 1) Create virtual environment
 
-### Faculty / Student APIs
-- `POST /api/register-student`
-- `GET /api/students`
-- `POST /api/delete-student`
-- `POST /api/set-date`
-- `GET /api/faculty/session`
-- `POST /api/faculty/login` (JSON session endpoint used by dashboard APIs)
-- `POST /api/faculty/logout`
+Windows (PowerShell):
 
-### Attendance APIs
-- `POST /api/recognize`
-- `GET /api/attendance?date=YYYY-MM-DD`
-- `GET /api/summary?date=YYYY-MM-DD`
-- `POST /api/trigger-buzzer`
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
----
+Linux/macOS:
 
-## ⚙️ Setup & Run
-
-### 1) Install dependencies
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 2) Install dependencies
+
+```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 2) Configure environment
-Copy `.env.example` to `.env` and set your values:
+### 3) Configure environment variables
 
-```bash
-cp .env.example .env
-```
+Copy `.env.example` to `.env`.
 
-Windows PowerShell:
+Windows (PowerShell):
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Required keys in `.env`:
-- `FLASK_SECRET_KEY`
-- `HOST`
-- `PORT`
-- `FACE_TOLERANCE`
-- `COOLDOWN_SECONDS`
-- `ESP32_BASE_URL`
+Linux/macOS:
 
-Optional keys for faculty account management:
-- `FACULTY_USERNAME` (default admin bootstrap)
-- `FACULTY_PASSWORD` (default admin bootstrap)
-- `FACULTY_RESET_KEY` (required for password reset)
+```bash
+cp .env.example .env
+```
 
-### 3) Run Flask backend
+Then fill values in `.env`:
+
+| Key | Description | Example |
+|---|---|---|
+| `FLASK_SECRET_KEY` | Flask session secret | `super-secret-key` |
+| `HOST` | Bind host | `0.0.0.0` |
+| `PORT` | Backend port | `5000` |
+| `FACE_TOLERANCE` | Recognition threshold | `0.6` |
+| `COOLDOWN_SECONDS` | Cooldown between marks | `120` |
+| `ESP32_BASE_URL` | ESP32 endpoint base | `http://192.168.1.50` |
+| `FACULTY_USERNAME` | Default admin username | `faculty` |
+| `FACULTY_PASSWORD` | Default admin password | `faculty123` |
+| `FACULTY_RESET_KEY` | Key for forgot-password reset | `reset123` |
+
+If any key is left empty, `backend/config.py` fallback defaults are used.
+
+### 4) Run the backend
+
 ```bash
 cd backend
 python app.py
 ```
 
-Server runs on:
-- `http://<HOST>:<PORT>` (from `.env`)
+Backend starts at:
 
-### 4) Open app pages
-- Faculty Login: `http://127.0.0.1:5000/faculty`
-- Faculty Dashboard: `http://127.0.0.1:5000/dashboard`
-- Attendance Page: `http://127.0.0.1:5000/attendance`
+- `http://127.0.0.1:5000` (if default host/port)
 
----
+## Application usage flow
 
-## 🔧 Environment Config
+### Step 1: Faculty login
 
-Configuration is loaded from `.env` using `python-dotenv` in `backend/config.py`.
+- Open `http://127.0.0.1:5000/faculty`
+- Login with admin credentials from `.env` (`FACULTY_USERNAME`, `FACULTY_PASSWORD`)
 
-Defaults are provided in code for local development, but production should set explicit values.
+### Step 2: Register students
 
----
+- Open Dashboard: `http://127.0.0.1:5000/dashboard`
+- Set attendance date (optional; otherwise active/default date is used)
+- Click **Start Camera** and grant browser permission
+- Enter `Name`, `Roll Number`, `Department`
+- Click **Capture & Register**
+- Registered students are saved in `backend/data/students.json`
 
-## 👤 Faculty Account Management
+### Step 3: Mark attendance
 
-- Create account: `GET /faculty/register`
-- Forgot password: `GET /faculty/forgot`
+- Open Attendance page: `http://127.0.0.1:5000/attendance`
+- Click **Start Camera**
+- Click **Capture & Recognize**
+- System marks either:
+   - `entry` (first detection)
+   - `exit` (next valid detection)
+   - `cooldown` (if scanned too soon)
+   - `unknown` or `no_face`
 
-Password reset requires the `FACULTY_RESET_KEY` value from `.env`.
-Faculty registration is admin-only; the default admin is created from `FACULTY_USERNAME` and `FACULTY_PASSWORD`.
+### Step 4: View reports
 
----
+- Attendance table and stats are loaded from backend APIs
+- Date-based records are stored in `backend/data/attendance.json`
 
-## 🔔 ESP32 Buzzer Patterns
+## Faculty account management
 
-Triggered from backend attendance service:
-- `entry`
-- `exit`
-- `unknown`
-- `cooldown`
+- Register new faculty (admin only): `GET /faculty/register`
+- Forgot/reset password: `GET /faculty/forgot`
+- Reset requires correct `FACULTY_RESET_KEY`
 
-ESP32 endpoint expected:
-- `POST {ESP32_BASE_URL}/buzzer` with JSON `{ "pattern": "entry|exit|unknown|cooldown" }`
+## Key API endpoints
 
----
+### Pages
 
-## Notes
+- `GET /` (redirects by login status)
+- `GET /faculty`
+- `POST /faculty/login`
+- `GET /faculty/logout`
+- `GET /dashboard` (protected)
+- `GET /attendance` (protected)
 
-- Legacy static frontend folder and `known_faces` startup dependency were removed.
-- Current system is fully dynamic and session-driven with Flask-rendered pages.
+### Faculty/Student APIs
+
+- `POST /api/faculty/login`
+- `POST /api/faculty/logout`
+- `GET /api/faculty/session`
+- `POST /api/register-student`
+- `GET /api/students`
+- `POST /api/delete-student`
+
+### Attendance APIs
+
+- `POST /api/recognize` (also mapped to `/recognize` and `/upload`)
+- `GET /api/attendance?date=YYYY-MM-DD`
+- `POST /api/set-date`
+- `GET /api/summary?date=YYYY-MM-DD`
+- `POST /api/trigger-buzzer`
+
+### Device control APIs
+
+- `GET /device_mode`
+- `GET /set_mode/idle`
+- `GET /set_mode/register`
+- `GET /set_mode/attendance`
+- `GET /health`
+
+## ESP32-CAM integration procedure (optional)
+
+### 1) Prepare Arduino IDE
+
+- Install ESP32 board package (Espressif)
+- Select board model matching your ESP32-CAM
+- Open `esp32/esp32_cam.ino`
+
+### 2) Edit firmware config
+
+In `AppConfig` inside `esp32_cam.ino`, set:
+
+- `wifiSsid`
+- `wifiPassword`
+- `backendBaseUrl` (example: `http://192.168.1.100:5000`)
+
+### 3) Flash and monitor
+
+- Upload firmware
+- Open Serial Monitor (115200 baud)
+- Note ESP32 IP address after Wi-Fi connection
+
+### 4) Link backend to ESP32 buzzer endpoint
+
+Set `.env` key:
+
+- `ESP32_BASE_URL=http://<esp32-ip>`
+
+Backend sends buzzer patterns to `POST /buzzer` on ESP32:
+
+- `entry`, `exit`, `unknown`, `cooldown`
+
+## Data files generated/used
+
+- `backend/data/students.json` → student profiles + encodings
+- `backend/data/attendance.json` → active date + date-wise attendance records
+- `backend/data/faculty_users.json` → faculty users with hashed passwords
+
+## Export checklist (run anywhere)
+
+When moving project to another machine, make sure these are present:
+
+1. Full project folder including `backend/`, `esp32/`, `.env.example`, `requirements.txt`
+2. New virtual environment created on target machine
+3. Dependencies installed via `pip install -r requirements.txt`
+4. `.env` created and configured
+5. Backend started with `python backend/app.py` or `cd backend && python app.py`
+
+## Troubleshooting
+
+- **`ModuleNotFoundError`**: activate virtual environment and reinstall requirements.
+- **`face_recognition` or `dlib-bin` install fails**: update pip (`python -m pip install --upgrade pip`) and retry; if needed, install compiler/build tools and retry.
+- **Camera not opening in browser**: use `http://127.0.0.1:5000` or HTTPS and allow camera permission.
+- **Unauthorized API response (401)**: login again from `/faculty`.
+- **ESP32 buzzer not triggering**: check `ESP32_BASE_URL`, same network, and ESP32 `/buzzer` route availability.

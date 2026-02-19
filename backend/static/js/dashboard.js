@@ -19,6 +19,15 @@ const elements = {
 let registrationStream = null;
 let isCameraReady = false;
 
+// Keep backend device mode in sync with dashboard actions.
+async function setDeviceMode(mode) {
+    try {
+        await fetch(`${API_BASE_URL}/set_mode/${encodeURIComponent(mode)}`);
+    } catch (error) {
+        console.error('Failed to set device mode:', error);
+    }
+}
+
 async function requestJson(url, options = {}) {
     const response = await fetch(url, options);
     const data = await response.json().catch(() => ({}));
@@ -66,6 +75,7 @@ async function startRegCamera() {
     }
 
     try {
+        await setDeviceMode('register');
         registrationStream = await getUserMedia({
             video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }
         });
@@ -76,6 +86,7 @@ async function startRegCamera() {
         elements.registerStudentBtn.disabled = false;
         isCameraReady = true;
     } catch (error) {
+        await setDeviceMode('idle');
         elements.regMsg.textContent = 'Failed to access camera. Please allow permission.';
     }
 }
@@ -103,6 +114,7 @@ function stopRegCamera() {
     registrationStream = null;
     elements.registerStudentBtn.disabled = true;
     isCameraReady = false;
+    setDeviceMode('idle');
 }
 
 async function captureRegistrationImage() {

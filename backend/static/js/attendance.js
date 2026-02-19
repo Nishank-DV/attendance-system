@@ -9,6 +9,15 @@ let isProcessing = false;
 let selectedDate = '';
 let dayOneDate = '';
 
+// Keep backend device mode in sync with attendance camera state.
+async function setDeviceMode(mode) {
+    try {
+        await fetch(`${API_BASE_URL}/set_mode/${encodeURIComponent(mode)}`);
+    } catch (error) {
+        console.error('Failed to set device mode:', error);
+    }
+}
+
 // ===== DOM ELEMENTS =====
 const elements = {
     webcam: document.getElementById('webcam'),
@@ -132,6 +141,7 @@ async function toggleCamera() {
 
 async function startCamera() {
     try {
+        await setDeviceMode('attendance');
         cameraStream = await navigator.mediaDevices.getUserMedia({
             video: {
                 width: { ideal: 1280 },
@@ -147,6 +157,7 @@ async function startCamera() {
         elements.captureBtn.disabled = false;
         isCameraActive = true;
     } catch (error) {
+        await setDeviceMode('idle');
         alert('Failed to access camera. Please check permissions.');
     }
 }
@@ -161,6 +172,7 @@ function stopCamera() {
         elements.captureBtn.disabled = true;
         isCameraActive = false;
         cameraStream = null;
+        setDeviceMode('idle');
     }
 }
 
